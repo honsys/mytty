@@ -1,6 +1,7 @@
 #if !defined(__MYTTY_C__)
 
 // termio defs: http://pubs.opengroup.org/onlinepubs/009695399/basedefs/termios.h.html
+// consider (newer) cfsetspeed and related c system calls (man termios)
 
 #include "fcntl.h"
 #include "stdio.h"
