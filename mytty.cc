@@ -6,8 +6,9 @@
 #include "fcntl.h"
 #include "stdio.h"
 #include "stdlib.h"
-#include "termio.h"
 #include "unistd.h"
+#include "termios.h"
+#include "sys/ioctl.h"
 
 // stdc++
 #include "iostream"
@@ -32,7 +33,7 @@ void sighandler(int sig) {
   switch(sig) {
   case SIGTSTP:
     clog<<"sighandler> control-z handled as sigterm ..."<<endl;
-    _terminate: true; 
+    _terminate: true;
     break;
   case SIGINT:
   case SIGTERM:
@@ -45,7 +46,7 @@ void sighandler(int sig) {
     clog<<"sighandler> cancel device read thread: "<<_thrdev<<endl;
     ::pthread_cancel(_thrdev);
     clog<<"sighandler> cancel user input thread: "<<_thrdreq<<endl;
-    ::pthread_cancel(_thrdreq); 
+    ::pthread_cancel(_thrdreq);
     clog<<"sighandler> closing: "<<_dev<<", fd: "<<_theDevFd<<endl;
 #if !defined(CYGWIN)
     ::ioctl(_theDevFd, TCSETAF, &_orig);
@@ -126,13 +127,13 @@ void* usereq(void* p) {
     }
     cmd += c;
     if( c == '\n' ) {
-      cmdline = cmd; 
+      cmdline = cmd;
       if( _verbose )
         clog<<"usereq> cmdline: "<<cmdline<<endl;
       cmd = "";
     }
-    
-    if( c == '\n' && ( _cr || _crlf ) ) 
+
+    if( c == '\n' && ( _cr || _crlf ) )
       c = '\r'; // replace nl with cr
 
     nb = ::write(fd, &c, 1); // send it to serial dev.
@@ -176,27 +177,27 @@ int main(int argc, char** argv) {
   string arg;
 
   arg = Runtime::argVal("-reset", args);
-  if( arg == "true" ) 
+  if( arg == "true" )
     _reset = true;
 
   arg = Runtime::argVal("-v", args);
-  if( arg == "true" ) 
+  if( arg == "true" )
     _verbose = true;
 
   arg = Runtime::argVal("-cr", args);
-  if( arg == "true" ) 
+  if( arg == "true" )
     _cr = true;
 
   arg = Runtime::argVal("-enq", args);
-  if( arg == "true" ) 
+  if( arg == "true" )
     _enq = true;
 
   arg = Runtime::argVal("-crlf", args);
-  if( arg == "true" ) 
+  if( arg == "true" )
     _crlf = true;
 
   arg = Runtime::argVal("-prompt", args);
-  if( arg != "false" ) 
+  if( arg != "false" )
    _prompt = true;
 
   // defaults for no arguments:
@@ -204,52 +205,52 @@ int main(int argc, char** argv) {
   _dev = "/dev/ttyS0";
   if( strstr(argv[0], "tty") != 0 ) {
     _dev = "/dev/ttyS0";
-    if( strstr(argv[0], "usb") != 0 ) 
+    if( strstr(argv[0], "usb") != 0 )
       _dev = "/dev/ttyUSB0";
   }
-  if( strstr(argv[0], "tty0") != 0 ) { 
+  if( strstr(argv[0], "tty0") != 0 ) {
     _dev = "/dev/ttyS0";
-    if( strstr(argv[0], "usb") != 0 ) 
+    if( strstr(argv[0], "usb") != 0 )
       _dev = "/dev/ttyUSB0";
   }
   if( strstr(argv[0], "tty1") != 0 ) {
     _dev = "/dev/ttyS1";
-    if( strstr(argv[0], "usb") != 0 ) 
+    if( strstr(argv[0], "usb") != 0 )
       _dev = "/dev/ttyUSB1";
   }
 #else // Solaris
-  _dev =  "/dev/term/a"; 
-  if( strstr(argv[0], "ttyb") != 0 ) 
+  _dev =  "/dev/term/a";
+  if( strstr(argv[0], "ttyb") != 0 )
     _dev = "/dev/term/b";
 #endif
 
   arg = Runtime::argVal("-dev", args);
-  if( arg != "false" && arg != "true" ) 
+  if( arg != "false" && arg != "true" )
     _dev = arg;
 
   arg = Runtime::argVal("-tty", args);
-  if( arg != "false" && arg != "true" ) 
+  if( arg != "false" && arg != "true" )
     _dev = arg;
 
   arg = Runtime::argVal("-0", args);
-  if( arg != "false" ) 
+  if( arg != "false" )
     _dev = "/dev/ttyS0";
 
   arg = Runtime::argVal("-1", args);
-  if( arg != "false" ) 
+  if( arg != "false" )
     _dev = "/dev/ttyS1";
 
   arg = Runtime::argVal("-a", args);
-  if( arg != "false" ) 
+  if( arg != "false" )
     _dev = "/dev/term/a";
 
   arg = Runtime::argVal("-b", args);
-  if( arg != "false" ) 
+  if( arg != "false" )
     _dev = "/dev/term/b";
 
   int bits = CS8;
   arg = Runtime::argVal("-7", args);
-  if( arg != "false" ) 
+  if( arg != "false" )
     bits = CS7;
 
   int parity = 0; // none
@@ -265,7 +266,7 @@ int main(int argc, char** argv) {
 
   int baud = B9600;
   clog<<"uftty> default baud rate B9600 for devault device: "<<_dev<<endl;
-  
+
   arg = Runtime::argVal("-19200", args);
   if( arg != "false" )
     baud = B19200;
@@ -314,7 +315,7 @@ int main(int argc, char** argv) {
       baud = B400000; //  __MAX_BAUD
     */
   }
- 
+
   int fd = ::open(_dev.c_str(), O_RDWR);
   clog<<"uftty> attempt to open serial line for read-write: "<<_dev<<endl;
   if( fd <= 0 ) {
@@ -367,4 +368,3 @@ int main(int argc, char** argv) {
 }
 
 #endif // __MYTTY_C__
-

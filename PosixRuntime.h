@@ -38,10 +38,13 @@
 #include "strings.h"
 #include "semaphore.h"
 #include "unistd.h"
-#include "values.h"
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "sys/mman.h"
+
+#if ! defined(Darwin)
+#include "values.h"
+#endif
 
 #if defined(SOLARIS)
 //#include "mqueue.h"
